@@ -1,0 +1,70 @@
+# -*- coding: utf-8 -*-
+""" Gramc and Gramc meso object configuration file
+"""
+# Import global configuration
+import config.config as gconfig
+
+config = {
+    # Global configuration
+    "global": gconfig.config,
+    # Gramc instance type : MESO or OTHER
+    "type": "MESO",
+    "session": {
+        # Next gramc session attribution code or current session attribution 
+        # code if no renew session is opened (GRAMC only)
+        "new": "23B",
+        # Attribution session code sorted by data (last is first) (GRAMC only)
+        "current": ["23A"],
+    },
+    # Project and version state number and associated name. For more 
+    # information:
+    # https://github.com/calmip/gramc3/blob/master/src/GramcServices/Etat.php
+    "states": {
+        1: "CREE_ATTENTE",
+        2: "EDITION_DEMANDE",
+        3: "EDITION_EXPERTISE",
+        4: "EN_ATTENTE",
+        5: "ACTIF",
+        6: "NOUVELLE_VERSION_DEMANDEE",
+        7: "EN_STANDBY",
+        8: "EN_SURSIS",
+        9: "TERMINE",
+        10: "ANNULE",
+        11: "FIN_ETATS",
+        21: "EDITION_TEST",
+        22: "EXPERTISE_TEST",
+        23: "ACTIF_TEST",
+        31: "DESAFFECTE",
+        41: "RENOUVELABLE",
+        42: "NON_RENOUVELABLE"
+    },
+    # Project type in GRAMC
+    "types": {
+        1: "SESSION",   # Gramc only
+        2: "TEST",      # Gramc only
+        3: "FIL",       # Gramc only
+        4: "DYNAMIQUE", # Gramc Meso only
+    },
+    # Gramc meso server name (ressource server) (gramc meso only)
+    # TODO : Not tested with multiple resource for one server
+    "resource": "MESOSERVER",
+    ## GRAMC meso API endpoints
+    "user_endpoint": "/gramc-meso/adminux/utilisateurs",
+    "projet_endpoint": "/gramc-meso/adminux/projets",
+    "todo_endpoint": "/gramc-meso/adminux/todo",
+    "conso_endpoint": "/gramc-meso/adminux/projet",
+    "ipaddress_endpoint": "/gramc-meso/adminux/adresseip",
+    "clessh_endpoint": "/gramc-meso/adminux/clessh",
+    # GRAMC API endpoints
+    # "user_endpoint": "/gramc3/adminux/utilisateurs",
+    # "projet_endpoint": "/gramc3/adminux/projets",
+
+    # GRAMC API devel url
+    "apiDevUrl": https://acces.dev.mesonet.fr",
+    # GRAMC API prod url
+    "apiUrl": "https://acces.mesonet.fr",
+    # GRAMC API prod API server user
+    "apiUser": mesonetapiuser
+    # GRAMC API prod API server password
+    "apiPassword": "pppppppppppppp",
+}

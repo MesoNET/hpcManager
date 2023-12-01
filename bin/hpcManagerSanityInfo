@@ -1,0 +1,89 @@
+#!/bin/bash
+
+toolPath="$(dirname "$(readlink -f "$(which "${0}")")")"
+settingsFile="${toolPath}/../config/binSettings.sh"
+if [[ -f "${settingsFile}" ]]
+then
+  source ${settingsFile}
+else
+  echo "Unable to find setting file (${settingsFile})."
+  exit 1
+fi
+
+echo "# Group Sanity Checks :"
+echo
+
+ColumnHeaders="LDAP cn,Unix group,Slurm account,SSH group,LDAP category"
+hpcManagerOuput="$(hpcManager list --no-header group --filter pf=SanityMesoCheckOrphans | column -t -s ',' --table-columns "${ColumnHeaders}")"
+if [[ -n "${hpcManagerOuput}" ]]
+then
+    echo "## SanityMesoCheckOrphans :"
+    echo "${hpcManagerOuput}"
+    echo
+fi
+
+echo "# User Sanity Checks :"
+echo
+ColumnHeaders="LDAP uid,LDAP group,Slurm user,Slurm account,SSH login,SSH group,Loginname,Active loginname,Idindividu,Nom,Prenom,Mail,Etat Projet, Etat Version,Generated,Login,Deleted"
+hpcManagerOuput="$(hpcManager list --no-header user --filter pf=SanityMesoCheckOrphans | column -t -s ',' --table-columns "${ColumnHeaders}")"
+if [[ -n "${hpcManagerOuput}" ]]
+then
+    echo "## SanityMesoCheckOrphans :"
+    echo "${hpcManagerOuput}"
+    echo
+fi
+
+ColumnHeaders="LDAP uid,LDAP cn,LDAP mail,LDAP gecos,Idindividu,Nom,Prenom,Utilisateur"
+hpcManagerOuput="$(hpcManager list --no-header user --filter pf=SanityMesoCheckGramcId | column -t -s ',' --table-columns "${ColumnHeaders}")"
+if [[ -n "${hpcManagerOuput}" ]]
+then
+    echo "## SanityMesoCheckGramcId :"
+    echo "${hpcManagerOuput}"
+    echo " * Commands :"
+    hpcManager list --no-header user --filter pf=SanityMesoCheckGramcId --attribute ldapds_uid ldapds_pgroup gramc_idindividu | \
+    awk -F ',' '{
+        print "     hpcLdapdsManager user modify attribute --uid \""$1"\" --pgroup \""$2"\" --attribute \"gecos\" --value \""$3"\" --doit"
+    }'
+    echo
+fi
+
+ColumnHeaders="LDAP uid,LDAP cn,LDAP mail,LDAP gecos,Idindividu,Nom,Prenom,Utilisateur"
+hpcManagerOuput="$(hpcManager list --no-header user --filter pf=SanityMesoCheckGramcMail | column -t -s ',' --table-columns "${ColumnHeaders}")"
+if [[ -n "${hpcManagerOuput}" ]]
+then
+    echo "## SanityMesoCheckGramcMail :"
+    echo "${hpcManagerOuput}"
+    echo " * Commands :"
+    hpcManager list --no-header user --filter pf=SanityMesoCheckGramcMail --attribute ldapds_uid ldapds_pgroup gramc_utilisateur | \
+    awk -F ',' '{
+        print "     hpcLdapdsManager user modify attribute --uid \""$1"\" --pgroup \""$2"\" --attribute \"mail\" --value \""$3"\" --doit"
+    }'
+    echo
+fi
+
+ColumnHeaders="SSH login,SSH group,SSH User pub key,SSH folder,GRAMC User ssh pub key,GRAMC ssh key name,GRAMC ssh key deployed"
+hpcManagerOuput="$(hpcManager list --delimiter ':' --no-header user --filter pf=SanityMesoCheckGramcSshPubKey | column -t -s ':' --table-columns "${ColumnHeaders}")"
+if [[ -n "${hpcManagerOuput}" ]]
+then
+    echo "## SanityMesoCheckGramcSshPubKey :"
+    echo "${hpcManagerOuput}"
+    echo " * Commands :"
+    for ssh_login in $(hpcManager list --no-header user --filter pf=SanityMesoCheckGramcSshPubKey --attribute ssh_login)
+    do
+        echo "     # Utilisateur '${ssh_login}'"
+        hpcSshManager user list --no-header --flat authpubkeysuser --filter 'login=^'''${ssh_login}'''$' --attribute login pgroup authpubkeysuser | \
+        awk -F ',' '{
+            print "     hpcSshManager user remove sshpubkey --login \""$1"\" --pgroup \""$2"\" --authid user --pubkey \""$3"\" --doit"
+        }'
+        hpcGramcManager user list --no-header --filter 'aloginname=^'''${ssh_login}'''$' --attribute aloginname projet asshpublickey | \
+        awk -F ',' '{
+            print "     hpcSshManager user add sshpubkey --login \""$1"\" --pgroup \""$2"\" --authid user --pubkey \""$3"\" --doit"
+        }'
+    done
+    echo
+fi
+
+if [[ -f "${toolPath}/bin/customCommands" ]]
+then
+    source customCommands.sh
+fi

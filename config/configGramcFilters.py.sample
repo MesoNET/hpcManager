@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+"""
+    Predefined filters
+
+    A predefined filter is a list of filter that are usable in command line as 
+    --filter "predefined=MyFilter"
+"""
+predefined = {
+    "group": {
+        # Gramc module filters
+        "GramcGroups": {
+            "help": "List all gramc groups (filters nothing, only set default attributes)",
+            "attributes": [
+                'projet', 'category', 'idprojet', 'mtype', 'apstate', 'aattribution', 'amail'
+            ],
+            "filters":  [
+            ],
+            "module": "gramc"
+        },
+    },
+    "user": {   
+        # Gramc module Filters
+        "GramcUsers": {
+            "help": "List all gramc users (filters nothing, only set default attributes)",
+            "attributes": [
+                'loginname', 'utilisateur', 'nom', 'prenom', 'idindividu', 
+                'projet', 'alogin', 'api', 'asshkeyid', 'asshpublickey', 
+                'asshkeyname', 'asshkeydeployed', 'asshkeyrevoked'
+            ],
+            "filters":  [
+            ],
+            "module": "gramc"
+        },
+    }
+}

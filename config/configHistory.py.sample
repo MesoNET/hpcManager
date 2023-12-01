@@ -1,0 +1,34 @@
+# -*- coding: utf-8 -*-
+""" History object configuration file
+"""
+# Import global configuration
+import config.config as gconfig
+
+config = {
+    # Global configuration
+    "global": gconfig.config,
+    # History groups and users root path 
+    # (designed to be "/meso/data/history/<group>/meso/users/<user>/<history file>")
+    "historyRootPath": "/opt/meso/data/history",
+    # History archives groups and users root path 
+    # (designed to be "/meso/data/history-archives/<group>/meso/users/<user>/<history file>")
+    "historyArchiveRootPath": "/opt/meso/data/history-archives",
+    # History default folder owner
+    "historyFolderOwner": "root",
+    # History default group folder owner
+    "historyFolderGroupOwner": "mesoadmin",
+    # History default group folder rights
+    "historyFolderRights": "u=rwx,g=rx,o=",
+    # History default group file name
+    "historyGroupFileName": "history.json",
+    # History default user file owner
+    "historyFileOwner": "root",
+    # History default user file group owner
+    "historyFileGroupOwner": "mesoadmin",
+    # History default user file rights
+    "historyFileRights": "u=rw,g=r,o=",
+    # History default user folder
+    "historyUsersFolder": "users",
+    # History default user file name
+    "historyUserFileName": "history.json"
+}

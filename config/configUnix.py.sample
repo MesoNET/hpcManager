@@ -1,0 +1,63 @@
+# -*- coding: utf-8 -*-
+""" Unix object configuration file
+"""
+# Import global configuration
+import config.config as gconfig
+
+config = {
+    # Global configuration
+    "global": gconfig.config,
+    # Binary location
+    "binary": {
+        ## Note :
+        ## Add "echo #disabled#" before a binary if you want it to be disabled
+        "groupadd": "echo #disabled#/usr/sbin/groupadd",
+        "groupdel": "echo #disabled#/usr/sbin/groupdel",
+        "useradd": "echo #disabled#/usr/sbin/useradd",
+        "userdel": "echo #disabled#/usr/sbin/userdel",
+        "getent": "/usr/bin/getent",
+        "usermod": "echo #disabled#/usr/sbin/usermod",
+        "ps": "/usr/bin/ps",
+        "killall": "/usr/bin/killall",
+    },
+    "user": {
+        # User minimum uid number on system (should be 0)
+        "uid_min": 0,
+        # User uid number start number for creating new users 
+        "uid_usable": 20000,
+        # User maximum uid number for creating new users
+        "uid_max": 30000,
+        # Default shell for users
+        "shell": "/bin/bash",
+        # Default shell for disabled users (Used to check locked user). An 
+        # sample can be sample folder
+        "disabled": "/sbin/disabled",
+        # Password length to generate random password
+        "password_length": 128,
+        # Do we need to extract extended attributes from gecos (GRAMC only)
+        "extractExtendedComment": False
+    },
+    "group": {
+        # Group minimum gid number on system (should be 0)
+        "gid_min": 0,
+        # Group gid start number for creating new groups 
+        "gid_usable": 20000,
+        # Group maximum gid number for creating new groups
+        "gid_max": 30000 
+    },
+    "activity": {
+        # Ps attributes needed to display user shell activity on cluster
+        # "<name>" {"abrv": '<abrv>', "justify": '<justify>', "size": <size>}
+        # Where : 
+        #   * <name>    : Activity attribute name that will be displayed
+        #   * <abrv>    : ps real attribute name
+        #   * <justify> : Alignement as describe here : https://docs.python.org/3/library/string.html#formatstrings 
+        #   * <size>    : Displayed column size for this attribute
+        "pid": {"abrv": 'pid', "justify": '>', "size": 8}, 
+        "user": {"abrv": 'user', "justify": '>', "size": 10},
+        "group":  {"abrv": 'group', "justify": '>', "size": 10},
+        "stat":  {"abrv": 'stat', "justify": '>', "size": 4},
+        "etime":  {"abrv": 'etime', "justify": '>', "size": 12},
+        "cmd":  {"abrv": 'cmd', "justify": '', "size": ''}
+    }
+}

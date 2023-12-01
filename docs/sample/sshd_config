@@ -1,0 +1,24 @@
+#       $OpenBSD: sshd_config,v 1.103 2018/04/09 20:41:22 tj Exp $
+
+# [...]
+
+# clusterusers : publickey authentication only
+Match Group clusterusers,!clusterformation
+  AuthenticationMethods publickey
+  AuthorizedKeysFile .ssh_folder/authorized_keys.user .ssh_folder/authorized_keys.internal .ssh_folder/authorized_keys.admin .ssh_folder/authorized_keys.pi
+  PasswordAuthentication no
+  Banner /etc/ssh/banner.clusterusers
+  # Uncomment to prevent mesonet users to login by ssh and let only admin to be able to log in:
+  # And restart ssh server : systemctl restart sshd (Kill connected mesonet user if needed)
+  #AllowGroups clusteradmin
+
+# clusterformation : password and publickey authentication
+Match Group clusterformation
+  AuthenticationMethods password publickey
+  MaxAuthTries 20
+  AuthorizedKeysFile .ssh_folder/authorized_keys.user .ssh_folder/authorized_keys.internal .ssh_folder/authorized_keys.admin .ssh_folder/authorized_keys.pi
+  PasswordAuthentication yes
+  Banner /etc/ssh/banner.clusterusers
+  # Uncomment to prevent mesonet users to login by ssh and let only admin to be able to log in:
+  # And restart ssh server : systemctl restart sshd (Kill connected mesonet user if needed)
+  #AllowGroups clusteradmin

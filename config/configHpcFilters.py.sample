@@ -1,0 +1,763 @@
+# -*- coding: utf-8 -*-
+"""
+    Predefined filters
+
+    A predefined filter is a list of filter that are usable in command line as 
+    --filter "predefined=MyFilter"
+"""
+# Import global configuration
+import config.configGramc as grconfig
+
+predefined = {
+    "group": {
+        # Hpc module filters
+        "AllGroups": {
+            "help": "List all groups (filters nothing, only set default attributes)",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_mstate', 
+                'gramc_apstate', 'gramc_avstate', 'gramc_amail', 
+                'gramc_aattribution', 'gramc_aquota', 'gramc_agpfs'
+            ],
+            "filters":  [
+            ],
+            "module": "hpc"
+        },
+        "AllMesoGroups": {
+            "help": "List all groups (filters nothing, only set default attributes)",
+            "attributes": [
+                'unix_group', 'unix_gid', 'unix_generated', 
+                'slurm_account', 'slurm_generated', 
+                'ldapds_cn', 'ldapds_gidnumber', 'ldapds_generated',
+                'gramc_projet', 'gramc_idprojet', 'gramc_mtype', 'gramc_mstate', 
+                'gramc_aversion', 'gramc_lversion', 'gramc_aclusters',
+                'gramc_astart', 'gramc_aend',
+                'gramc_apstate', 'gramc_avstate', 'gramc_amail', 
+                'gramc_aasked', 'gramc_aattribution', 'gramc_aconsumption'
+            ],
+            "filters":  [
+                'unix_group=^.+$', 'slurm_account=^.+$', 'and', 
+                'gramc_projet=^$', 'and',
+                'gramc_category=mesonet', f'gramc_aclusters@{grconfig.config["resource"]}<', 'and',
+                'or',
+                'gramc_category=mesonet', 'gramc_aattribution=^$', 'and',
+                'or'
+            ],
+            "module": "hpc"
+        },
+        "HpcGroups": {
+            "help": "List valid hpc groups (which have unix and slurm entries)",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_mstate', 
+                'gramc_apstate', 'gramc_avstate', 'gramc_amail', 
+                'gramc_aattribution', 'gramc_aquota', 'gramc_agpfs'
+            ],
+            "filters":  [
+                
+            ],
+            "module": "hpc"
+        },
+        "SessionOldGroups": {
+            "help": "List groups in old session to delete",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession',
+                'gramc_mstate', 'gramc_lpstate', 'gramc_lvstate', 
+                'gramc_lmail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category'
+            ],
+            "filters": [
+                'unix_generated=^False$', 'unix_group=^.+$', 'and', 
+                'slurm_generated=^False$', 'slurm_account=^.+$', 'and', 'and',
+                'gramc_mstate=^STANDBY$', 'gramc_mtype=^SESSION$', 'and',
+                'gramc_mstate=^STANDBY$', 'gramc_mtype=^FIL$', 'and', 'or',
+                'gramc_mstate=^TERMINE$', 'gramc_mtype=^FIL$', 'and', 'or',
+                'gramc_mstate=^TERMINE$', 'gramc_mtype=^TEST$', 'and', 'or',
+                'gramc_category=^recherche|test$', 
+                'gramc_lsession=[OLD]', 'gramc_lsession=[CURRENT]', 'or',
+                'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "SessionBKeepedGroups": {
+            "help": "List groups in old session to keep for B session",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category'
+            ],
+            "filters": [
+                'unix_generated=^False$', 'unix_group=^.+$', 'or', 
+                'slurm_generated=^False$', 'slurm_account=^.+$', 'or',
+                'gramc_category=^recherche|test$', 'gramc_asession=[OLD]', 
+                'gramc_mstate=^AGARDER$', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "NewGroups": {
+            "help": "List groups to create in current session",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category', 'gramc_aatribution'            
+            ],
+            "filters": [
+                'unix_generated=^True$', 'unix_group=^$', 'or', 
+                'slurm_generated=^True$', 'slurm_account=^$', 'or', 
+                'gramc_category=^recherche|test$', 'gramc_asession=[CURRENT]', 
+                'gramc_mstate=ACCEPTE', 'gramc_avstate=^ACTIF|ACTIF_TEST$', 
+                'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "NewMesoGroups": {
+            "help": "List groups to create in current session",
+            "attributes": [
+                'gramc_projet', 'gramc_aattribution', 'gramc_amail', 
+                'gramc_idprojet', 'gramc_avstate', 'gramc_mstate', 
+                'gramc_apstate', 'gramc_category'            
+            ],
+            "filters": [
+                'unix_generated=^True$', 'unix_group=^$', 'or', 
+                'slurm_generated=^True$', 'slurm_account=^$', 'or', 
+                'gramc_category=^mesonet$', 'gramc_aattribution>0',
+                'gramc_mstate=ACCEPTE', 'gramc_avstate=^ACTIF$', 
+                'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "QuotaUpdateGroups": {
+            "help": "List groups needed quota update according to attribution",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_idprojet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_mstate', 
+                'gramc_apstate', 'gramc_avstate', 'gramc_amail', 
+                'gramc_aattribution', 'gramc_aquota' 
+            ],
+            "filters": [
+                'gramc_projet=^.+$', 
+                'gramc_avstate=^ACTIF|ACTIF_TEST|NOUVELLE_VERSION_DEMANDEE$', 
+                'gramc_category=^recherche|test$', 
+                'gramc_aattribution>[gramc_aquota]'
+            ],
+            "module": "hpc"
+        },
+        "SessionNewGroups": {
+            "help": "List groups to create for new session",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_lvstate',
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category'
+            ],
+            "filters": [
+                'unix_generated=^True$', 'unix_group=^$', 'or', 
+                'slurm_generated=^True$', 'slurm_account=^$', 'or', 
+                'gramc_category=^recherche|test$', 'gramc_lsession=[NEW]', 
+                'gramc_mstate=ACCEPTE', 
+                'gramc_lvstate=^ACTIF|ACTIF_TEST|EN_ATTENTE$', 
+                'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "SessionReNewGroups": {
+            "help": "List groups to renew for new session",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_lvstate', 
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category'
+            ],
+            "filters": [
+                'unix_generated=^False$', 'unix_group=^.+$', 'and', 
+                'slurm_generated=^False$', 'slurm_account=^.+$', 'or', 
+                'gramc_category=^recherche|test$', 'gramc_lsession=[NEW]', 
+                'gramc_mstate=ACCEPTE', 
+                'gramc_lvstate=^ACTIF|ACTIF_TEST|EN_ATTENTE$', 
+                'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "PreSessionNewGroups": {
+            "help": "List groups to create for new session",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_lvstate',
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category'
+            ],
+            "filters": [
+                'unix_generated=^True$', 'unix_group=^$', 'or', 
+                'slurm_generated=^True$', 'slurm_account=^$', 'or', 
+                'gramc_category=^recherche|test$', 'gramc_lsession=[NEW]', 
+                'gramc_mstate=ACCEPTE', 
+                'gramc_lvstate=^EDITION_EXPERTISE|ACTIF|ACTIF_TEST|EN_ATTENTE$', 
+                'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "PreSessionReNewGroups": {
+            "help": "List groups to renew for new session",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_lvstate',
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category'
+            ],
+            "filters": [
+                'unix_generated=^False$', 'unix_group=^.+$', 'and', 
+                'slurm_generated=^False$', 'slurm_account=^.+$', 'or', 
+                'gramc_category=^recherche|test$', 'gramc_lsession=[NEW]', 
+                'gramc_mstate=ACCEPTE', 
+                'gramc_lvstate=^EDITION_EXPERTISE|ACTIF|ACTIF_TEST|EN_ATTENTE$', 
+                'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "SessionGroups": {
+            "help": "List groups from current gramc sessions",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_lvstate',
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category'
+            ],
+            "filters": [
+                'gramc_category=^recherche|test$', 'gramc_asession=[CURRENT]', 
+                'gramc_mstate=ACCEPTE', 
+                'gramc_lvstate=^ACTIF|ACTIF_TEST|EN_ATTENTE$'
+            ],
+            "module": "hpc"
+        },
+        "PreSessionGroups": {
+            "help": "List groups from current gramc sessions",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_lvstate',
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account',
+                'gramc_category'
+            ],
+            "filters": [
+                'gramc_lsession=[CURRENT]', 'gramc_lsession=[NEW]', 'or',
+                'gramc_category=^recherche|test$', 'gramc_mstate=ACCEPTE', 
+                'gramc_lvstate=^ACTIF|ACTIF_TEST|EN_ATTENTE$', 
+                'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "SanityCheckOrphans": {
+            "help": "List recherche or test groups with no unix_login or no slurm_user",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_projet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_asession',
+                'gramc_mstate', 'gramc_apstate', 'gramc_avstate', 
+                'gramc_lvstate',
+                'gramc_amail', 'unix_generated',
+                'slurm_generated', 'slurm_account', 'slurm_category',
+                'gramc_category'
+            ],
+            "filters":  [
+                'unix_category=^recherche|test$', 'unix_group=^.+', 
+                'gramc_projet=^$' , 'and', 'and',
+                'slurm_category=^recherche|test$', 'slurm_account=^.+', 
+                'gramc_projet=^$' , 'and', 'and',
+                'unix_category=^recherche|test$', 'unix_group=^.+', 
+                'slurm_account=^$' , 'and', 'and',
+                'slurm_category=^recherche|test$', 'slurm_account=^.+', 
+                'unix_group=^$' , 'and', 'and',
+                'or', 'or', 'or'
+            ],
+            "module": "hpc"
+        },
+        "SanityMesoCheckOrphans": {
+            "help": "List mesonet or test groups with no unix_login or no slurm_user",
+            "attributes": [
+                'ldapds_cn', 'unix_group', 'slurm_account', 'ssh_group',
+                'ldapds_category'
+            ],
+            "filters":  [
+                'unix_category=^mesonet|test$', 'unix_group=^.+', 
+                'gramc_projet=^$' , 'and', 'and',
+                'slurm_category=^mesonet|test$', 'slurm_account=^.+', 
+                'gramc_projet=^$' , 'and', 'and',
+                'unix_category=^mesonet|test$', 'unix_group=^.+', 
+                'slurm_account=^$' , 'and', 'and',
+                'slurm_category=^mesonet|test$', 'slurm_account=^.+', 
+                'unix_group=^$' , 'and', 'and',
+                'or', 'or', 'or'
+            ],
+            "module": "hpc"
+        },
+        "CallistoGroups": {
+            "help": "List callisto groups",
+            "attributes": [
+                'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_mstate', 
+                'gramc_apstate', 'gramc_avstate', 'gramc_amail', 
+                'gramc_aattribution', 'gramc_aquota', 'gramc_agpfs',
+                'dataverse_name', 'dataverse_category', 'dataverse_contact'
+            ],
+            "filters":  [
+            ],
+            "module": "hpc"
+        },
+        "SanityCheckQuotas": {
+            "help": "List groups with more quota than attribution",
+            "attributes": [
+                'unix_group', 'unix_category', 'gramc_idprojet', 'gramc_mtype',
+                'gramc_asession', 'gramc_lsession', 'gramc_mstate', 
+                'gramc_apstate', 'gramc_avstate', 'gramc_amail', 
+                'gramc_aattribution', 'gramc_aquota' 
+            ],
+            "filters": [
+                'gramc_projet=^.+$', 
+                'gramc_avstate=^ACTIF|ACTIF_TEST|NOUVELLE_VERSION_DEMANDEE$', 
+                'gramc_category=^recherche|test$', 
+                'gramc_aquota>[gramc_aattribution]'
+            ],
+        }
+    },
+    "user": {
+        # Hpc module filters
+        "AllUsers": {
+            "help": "List all users (filters nothing, only set default attributes)",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets'
+            ],
+            "filters":  [
+            ],
+            "module": "hpc"
+        },
+        "AllMesoUsers": {
+            "help": "List all users (filters nothing, only set default attributes)",
+            "attributes": [
+                'unix_login', 'unix_locked', 'unix_generated',
+                'slurm_user', 'slurm_generated',
+                'ldapds_uid', 'ldapds_locked', 'ldapds_displayname', 
+                'ldapds_uidnumber', 'ldapds_gidnumber', 'ldapds_homedirectory',
+                'ldapds_mail', 'ldapds_loginshell', 'ldapds_gecos', 
+                'ldapds_pgroup', 'ldapds_generated', 
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apvstate', 'gramc_api', 'gramc_mprojets'
+                'gramc_lsshkeyname', 'gramc_asshkeydeployed', 
+                'gramc_asshkeyrevoked', 'gramc_generated'
+            ],
+            "filters":  [
+                'ldapds_category=^mesonet|entreprise|socle|admins|interne|logiciel|test|unknown$', 
+                f'gramc_aclusters@{grconfig.config["resource"]}<', 'or'
+            ],
+            "module": "hpc"
+        },
+        "HpcUsers": {
+            "help": "List valid hpc users (which have unix and slurm entries)",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets'
+            ],
+            "filters":  [
+                'unix_category=^recherche|mesonet$', 'slurm_user=^recherche|mesonet$', 
+                'gramc_category=^recherche|mesonet$', 'or', 'or'
+            ],
+            "module": "hpc"
+        },
+        "LockedUsers": {
+            "help": "List locked hpc users",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets'
+            ],
+            "filters":  [
+                'unix_locked=^True$'
+            ],
+            "module": "hpc"
+        },
+        "OldUsers": {
+            "help": "List old users in current sessions",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_lloginname', 'gramc_aloginname', 
+                'gramc_adeleted', 'gramc_ldeleted',
+                'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets', 'unix_generated', 'slurm_generated', 
+                'slurm_user', 'gramc_alogin', 'gramc_loginname', 
+                'gramc_generated'         
+            ],
+            "filters":  [
+                'unix_generated=^False$', 'unix_login=^.+$', 'and', 
+                'slurm_generated=^False$', 'slurm_user=^.+$', 'and', 
+                'gramc_alogin=^(False|)$', 'gramc_adeleted=^True$', 'or',
+                'gramc_loginname=^.+$', 
+                'gramc_apsession=[CURRENT]','gramc_generated=^False$',
+                'and', 'and', 'and', 'and', 'and'         
+            ],
+            "module": "hpc"
+        },
+        "SessionOldUsers": {
+            "help": "List old users in old sessions",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets', 'unix_generated', 'slurm_generated', 
+                'slurm_user', 'gramc_alogin', 'gramc_loginname', 
+                'gramc_generated', 'gramc_pmtype', 'gramc_pmstate', 
+                'gramc_category', 'gramc_lpsession'
+            ],
+            "filters":  [
+                'unix_generated=^False$', 'unix_login=^.+$', 'and', 
+                'slurm_generated=^False$', 'slurm_user=^.+$', 'and',
+                'gramc_pmstate=^STANDBY$', 'gramc_pmtype=^SESSION$', 'and',
+                'gramc_pmstate=^TERMINE$', 'gramc_pmtype=^FIL$', 'and', 'or',
+                'gramc_pmstate=^STANDBY$', 'gramc_pmtype=^FIL$', 'and', 'or',
+                'gramc_pmstate=^TERMINE$', 'gramc_pmtype=^TEST$', 'and', 'or',
+                'gramc_category=^recherche|test$', 'gramc_lpsession=[OLD]', 
+                'gramc_generated=^False$', 'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "NewUsers": {
+            "help": "List users from current gramc sessions with no unix login",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets', 'unix_generated', 'slurm_generated', 
+                'slurm_user', 'gramc_alogin', 'gramc_loginname', 
+                'gramc_generated', 'gramc_pmtype', 'gramc_pmstate', 
+                'gramc_category', 'gramc_lpsession'
+            ],
+            "filters":  [
+                'unix_generated=^True$', 'unix_login=^$', 'or', 
+                'slurm_generated=^True$', 'slurm_user=^$', 'or', 'and',
+                'gramc_alogin=^True$', 'gramc_generated=^True$', 
+                'gramc_ldeleted=^False$','gramc_adeleted=^False$',
+                'gramc_apvstate=^ACTIF|NOUVELLE_VERSION_DEMANDEE$',
+                'gramc_apsession=[CURRENT]', 
+                'and', 'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "NewMesoUsers": {
+            "help": "List users from current gramc sessions with no unix login",
+            "attributes": [  
+                'gramc_idindividu','gramc_prenom', 'gramc_nom', 'gramc_projet',
+                'gramc_utilisateur', 'gramc_loginname', 'gramc_api', 
+                'gramc_alogin', 'gramc_apvstate', 'gramc_generated',
+                'gramc_adeleted', 'gramc_ldeleted',
+                'gramc_category'
+            ],
+            "filters":  [
+                'unix_generated=^True$', 'unix_login=^$', 'or', 
+                'slurm_generated=^True$', 'slurm_user=^$', 'or', 'and',
+                'gramc_alogin=^True$', 'gramc_generated=^True$', 
+                'gramc_ldeleted=^False$','gramc_adeleted=^False$',
+                'gramc_apvstate=^ACTIF|NOUVELLE_VERSION_DEMANDEE$',
+                f'gramc_aclusters@{grconfig.config["resource"]}<', 
+                'and', 'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "NewMesoSshKey": {
+            "help": "List users from current gramc sessions with ssh key not deployed",
+            "attributes": [
+                'gramc_asshpublickey', 
+                'ldapds_homedirectory',
+                'gramc_idindividu', 'gramc_loginname', 'gramc_projet',
+                'gramc_asshkeyname', 'gramc_utilisateur', 'gramc_alogin', 
+                'gramc_asshkeydeployed', 'gramc_asshkeyrevoked', 
+                'gramc_generated',
+                'gramc_adeleted', 'gramc_ldeleted',
+                'gramc_category'
+            ],
+            "filters":  [
+                'unix_generated=^False$', 'unix_login=^.+$', 'or', 
+                'slurm_generated=^False$', 'slurm_user=^.+$', 'or', 'and',
+                'gramc_alogin=^True$', 'and', 
+                'gramc_generated=^False$', 'and', 
+                'gramc_ldeleted=^False$', 'and', 
+                'gramc_adeleted=^False$', 'and',
+                'gramc_apvstate=^ACTIF|NOUVELLE_VERSION_DEMANDEE$', 'and',
+                f'gramc_aclusters@{grconfig.config["resource"]}<', 'and',
+                'gramc_asshkeydeployed=^False$', 'and',
+                'gramc_asshkeyrevoked=^False$', 'and',
+                'gramc_asshpublickey=^.+$', 'and'
+            ],
+            "module": "hpc"
+        },
+        "SessionNewUsers": {
+            "help": "List users from new gramc session with no unix login",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets', 'unix_generated', 'slurm_generated', 
+                'slurm_user', 'gramc_alogin', 'gramc_loginname', 
+                'gramc_generated', 'gramc_pmtype', 'gramc_pmstate', 
+                'gramc_category', 'gramc_lpsession', 'gramc_llogin', 
+                'gramc_pmstate', 'gramc_lpvstate',
+                'gramc_lpsession', 
+            ],
+            "filters":  [
+                'unix_generated=^True$', 'unix_login=^$', 'or', 
+                'slurm_generated=^True$', 'slurm_user=^$', 'or', 
+                'gramc_llogin=^True$', 'gramc_generated=^True$',
+                'gramc_ldeleted=^False$',
+                'gramc_pmstate=ACCEPTE',
+                'gramc_lpvstate=^ACTIF|ACTIF_TEST|EN_ATTENTE$',
+                'gramc_lpsession=[NEW]', 
+                'and', 'and', 'and', 'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "PreSessionNewUsers": {
+            "help": "List users from new gramc session with no unix login",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets', 'unix_generated', 'slurm_generated', 
+                'slurm_user', 'gramc_alogin', 'gramc_loginname', 
+                'gramc_generated', 'gramc_pmtype', 'gramc_pmstate', 
+                'gramc_category', 'gramc_lpsession', 'gramc_llogin', 
+                'gramc_pmstate', 'gramc_lpvstate',
+                'gramc_lpsession', 
+            ],
+            "filters":  [
+                'unix_generated=^True$', 'unix_login=^$', 'or', 
+                'slurm_generated=^True$', 'slurm_user=^$', 'or', 
+                'gramc_llogin=^True$', 'gramc_generated=^True$',
+                'gramc_ldeleted=^False$',
+                'gramc_pmstate=ACCEPTE|EXPERTISE',
+                'gramc_lpvstate=^ACTIF|ACTIF_TEST|EN_ATTENTE|EDITION_EXPERTISE$',
+                'gramc_lpsession=[NEW]', 
+                'and', 'and', 'and', 'and', 'and', 'and', 'and',
+            ],
+            "module": "hpc"
+        },
+        "SanityCheckGramcLoginMissing": {
+            "help": "List recherche or test users with no gramc_login set in GRAMC",
+            "attributes": [
+                'unix_login', 'slurm_user', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_loginname', 'gramc_aloginname', 
+                'gramc_lloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_aversion', 'gramc_lversion',
+                'gramc_apsession', 'gramc_lpsession',
+                'gramc_apvstate', 'gramc_lpvstate',
+                'gramc_api', 
+                'gramc_mprojets',  
+                'gramc_alogin','gramc_llogin',
+                'unix_generated', 'slurm_generated','gramc_generated', 
+                'gramc_pmtype', 'gramc_pmstate', 
+                
+            ],
+            "filters":  [
+                'unix_category=^recherche|test$', 'unix_login=^.+', 
+                'gramc_aversion=^.+$', 'gramc_lversion=^.+$',
+                'gramc_loginname=^$' , 'and', 'and', 'and', 'and',
+                'slurm_category=^recherche|test$', 'slurm_user=^.+', 
+                'gramc_aversion=^.+$', 'gramc_lversion=^.+$',
+                'gramc_loginname=^$' , 'and', 'and', 'and', 'and',
+                'unix_category=^recherche|test$', 'unix_login=^.+', 
+                'slurm_user=^$' , 'and', 'and',
+                'slurm_category=^recherche|test$', 'slurm_user=^.+', 
+                'unix_login=^$' , 'and', 'and',
+                # 'unix_login=^$', "gramc_loginname=^.+$", 'gramc_generated=^False$', 'and', 'and',
+                'gramc_category=^recherche|test$', 'slurm_user=^',
+                'unix_login=^$' , 'gramc_loginname=^killme-[^-]+-[0-9]+$', 'and', 'and', 'and',
+                'or', 'or', 'or', 'or', #'or'
+            ],
+            "module": "hpc"
+        },
+        "SanityCheckOrphans": {
+            "help": "List recherche or test users with no unix_login or no slurm_user",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_gloginname', 'gramc_login', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets', 'unix_generated', 'slurm_generated', 
+                'slurm_user', 'gramc_alogin', 'gramc_gloginname', 
+                'gramc_generated', 'gramc_pmtype', 'gramc_pmstate', 
+                'gramc_category', 'gramc_lpsession', 'gramc_llogin', 
+                'gramc_pmstate', 'gramc_lpvstate',
+                'gramc_lpsession', 'gramc_loginname'
+            ],
+            "filters":  [
+                'unix_category=^recherche|test$', 'unix_login=^.+', 
+                'gramc_aversion=^.+$', 'gramc_lversion=^.+$',
+                'gramc_aloginname=^$' , 'and', 'and', 'and', 'and',
+                'slurm_category=^recherche|test$', 'slurm_user=^.+', 
+                'gramc_aversion=^.+$', 'gramc_lversion=^.+$',
+                'gramc_aloginname=^$' , 'and', 'and', 'and', 'and',
+                'unix_category=^recherche|test$', 'unix_login=^.+', 
+                'gramc_loginname=^$' , 'and', 'and',
+                'slurm_category=^recherche|test$', 'slurm_user=^.+', 
+                'gramc_loginname=^$' , 'and', 'and',
+                'unix_category=^recherche|test$', 'unix_login=^.+', 
+                'slurm_user=^$' , 'and', 'and',
+                'slurm_category=^recherche|test$', 'slurm_user=^.+', 
+                'unix_login=^$' , 'and', 'and',
+                # 'unix_login=^$', "gramc_gloginname=^.+$", 'gramc_generated=^False$', 'and', 'and',
+                'gramc_category=^recherche|test$', 'slurm_user=^',
+                'unix_login=^$' , 'gramc_loginname=^killme-[^-]+-[0-9]+$', 'and', 'and', 'and',
+                'or', 'or', 'or', 'or', 'or', 'or', #'or'
+            ],
+            "module": "hpc"
+        },
+        "SanityCheckUnixGecos": {
+            "help": "List recherche or test users with unix gecos not formate according to gramc attributes",
+            "attributes": [
+                'unix_login', 'unix_pgroup', 'unix_category', 'unix_locked', 
+                'gramc_aloginname', 'gramc_lloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets', 'unix_generated', 'slurm_generated', 
+                'slurm_user', 'gramc_alogin',
+                'gramc_generated', 'gramc_pmtype', 'gramc_pmstate', 
+                'gramc_category', 'gramc_lpsession', 'gramc_llogin', 
+                'gramc_pmstate', 'gramc_lpvstate',
+                'gramc_lpsession', 'gramc_loginname', 'unix_comment'
+            ],
+            "filters":  [
+                'gramc_lpsession=[NEW]', 'gramc_apsession=[CURRENT]', 'or',
+                'unix_category=^recherche|test$', 
+                'unix_login=^.+$', 'unix_generated=^False$',
+                'unix_comment![gramc_idindividu],[gramc_nom],[gramc_prenom],[gramc_utilisateur]',
+                'and', 'and', 'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "CallistoUsers": {
+            "help": "List callisto users",
+            "attributes": [
+                'gramc_loginname', 'gramc_aloginname', 'gramc_projet', 
+                'gramc_nom', 'gramc_prenom', 'gramc_utilisateur',
+                'gramc_apsession', 'gramc_apvstate', 'gramc_api', 
+                'gramc_mprojets', 'dataverse_contact', 'dataverse_nom',
+                'dataverse_prenom'
+            ],
+            "filters":  [
+            ],
+            "module": "hpc"
+        },
+        "SanityMesoCheckOrphans": {
+            "help": "List meso users with no unix_login or no slurm_user",
+            "attributes": [
+                'ldapds_uid', 'ldapds_pgroup', 'slurm_user', 'slurm_account', 
+                'ssh_login', 'ssh_pgroup', 'gramc_loginname', 'gramc_aloginname', 
+                'gramc_idindividu', 'gramc_nom', 'gramc_prenom', 'gramc_utilisateur', 
+                'gramc_apstate', 'gramc_apvstate', 'gramc_generated', 'gramc_alogin', 
+                'gramc_adeleted'
+            ],
+            "filters":  [
+                'ldapds_category=^mesonet$', 'ldapds_uid=^.+$', 'and',
+                'gramc_aloginname=^$', 'and',
+                'slurm_category=^mesonet$', 'slurm_user=^.+$', 'and',
+                'gramc_aloginname=^$', 'and', 'or',
+                'ssh_category=^mesonet$', 'ssh_login=^.+$', 'and',
+                'gramc_aloginname=^$', 'and', 'or',
+                'gramc_category=^mesonet$', 'ldapds_uid=^$', 'and',
+                'gramc_aloginname!^nologin$', 'and', 'gramc_alogin=^True$', 
+                'and', 'gramc_adeleted=^False$', 'and', 'gramc_apstate=^RENOUVELABLE$', 
+                'and','gramc_apvstate=^ACTIF$', 'and', 'or', 
+                'gramc_category=^mesonet$', 'slurm_user=^$', 'and',
+                'gramc_aloginname!^nologin$', 'and', 'gramc_alogin=^True$', 
+                'and', 'gramc_adeleted=^False$', 'and', 'gramc_apstate=^RENOUVELABLE$', 
+                'and','gramc_apvstate=^ACTIF$', 'and', 'or',
+                'gramc_category=^mesonet$', 'ssh_login=^$', 'and',
+                'gramc_aloginname!^nologin$', 'and', 'gramc_alogin=^True$', 
+                'and', 'gramc_adeleted=^False$', 'and', 'gramc_apstate=^RENOUVELABLE$', 
+                'and','gramc_apvstate=^ACTIF$', 'and', 'or',
+                
+            ],
+            "module": "hpc"
+        },
+        "SanityMesoCheckGramcId": {
+            "help": "List meso users with bad gramc id",
+            "attributes": [
+                'ldapds_uid', 'ldapds_cn', 'ldapds_mail', 'ldapds_gecos', 
+                'gramc_idindividu', 'gramc_nom', 'gramc_prenom', 
+                'gramc_utilisateur'
+            ],
+            "filters":  [
+               'ldapds_uid=^.+$', 'gramc_category=^mesonet$', 'ldapds_gecos!^[gramc_idindividu]$',
+                'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "SanityMesoCheckGramcMail": {
+            "help": "List meso users with bad gramc mail",
+            "attributes": [
+                'ldapds_uid', 'ldapds_cn', 'ldapds_pgroup', 'ldapds_mail', 'ldapds_gecos', 
+                'gramc_idindividu', 'gramc_nom', 'gramc_prenom', 
+                'gramc_utilisateur'
+            ],
+            "filters":  [
+               'ldapds_uid=^.+$', 'gramc_category=^mesonet$', 'ldapds_mail!^[gramc_utilisateur]$',
+                'and', 'and'
+            ],
+            "module": "hpc"
+        },
+        "SanityMesoCheckGramcSshPubKey": {
+            "help": "List meso users with bad gramc ssh public key deployed",
+            "attributes": [
+                'ssh_login', 'ssh_pgroup', 'ssh_authpubkeysuser', 'ssh_folder', 
+                'gramc_asshpublickey', 'gramc_asshkeyname', 
+                'gramc_asshkeydeployed'
+            ],
+            "filters":  [
+               'ssh_login=^.+$', 'gramc_category=^mesonet$', 'and',
+               'ssh_authpubkeysuser#<1', 'ssh_authpubkeysuser#>1','or', 'and',
+               'gramc_asshkeydeployed=^True$', 'and', 
+               'ssh_authpubkeysuser@![gramc_asshpublickey]<', 'and', 
+               'gramc_asshpublickey=^.+$', 'and'
+
+            ],
+            "module": "hpc"
+        },
+    }
+}

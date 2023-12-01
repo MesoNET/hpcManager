@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Shell for disabled user
+
+echo "This account has been disabled"
+/bin/bash

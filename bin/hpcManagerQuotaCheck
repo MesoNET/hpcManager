@@ -1,0 +1,55 @@
+#!/bin/bash
+
+LC_ALL="en_US.UTF-8"
+LANG="en_US.UTF8"
+
+toolPath="$(dirname "$(readlink -f "$(which "${0}")")")"
+settingsFile="${toolPath}/../config/binSettings.sh"
+if [[ -f "${settingsFile}" ]]
+then
+  source ${settingsFile}
+
+  managerRegex='^hpc([A-Z][a-z]+)?ManagerQuotaCheck(Beta)?$'
+  managerName="NotSet"
+  managerBeta="No"
+
+  if [[ "$(basename "${0}")" =~ ${managerRegex} ]]
+  then
+    managerName="${BASH_REMATCH[1]}"
+    managerBeta="${BASH_REMATCH[2]}"
+    if [[ "${managerBeta}" == "Beta" ]]
+    then
+      hpcManagerFolderName="hpcManagerBetaFolder"
+    else
+      hpcManagerFolderName="hpcManagerFolder"
+    fi
+    hpcManagerPythonBinary="hpcManager.py"
+  else
+    echo "Unable to find manager name"
+    exit 1
+  fi
+
+else
+  echo "Unable to find setting file (${settingsFile})."
+  exit 1
+fi
+
+myGroup="$(id -ng)"
+
+sysAdmin="False"
+for myGroups in $(id -nG)
+do
+  if [[ "${myGroups}" == "${adminGroup}" ]] || [[ "${myGroups}" == "root" ]]
+  then
+    sysAdmin="True"
+    break
+  fi
+done
+
+
+if [[ "${sysAdmin}" == "True" ]]
+then
+  ${sudoBinaryPath} -- ${pythonBinaryPath} "${!hpcManagerFolderName}/${hpcManagerPythonBinary}" list group --attribute unix_category unix_group gramc_idprojet gramc_mtype gramc_asession gramc_mstate gramc_avstate gramc_amail gramc_aattribution gramc_aquota --filter pf=QuotaUpdateGroups | awk -F ',' 'BEGIN{ OFS="," } NR == 1 { $11 = "rallonge" } NR > 1 { $11 = $9 - $10 } 1'
+else
+  echo "Commande resteinte aux administrateurs du systeme"
+fi

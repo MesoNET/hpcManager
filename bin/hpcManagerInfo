@@ -1,0 +1,63 @@
+#!/bin/bash
+
+LC_ALL="en_US.UTF-8"
+LANG="en_US.UTF8"
+
+toolPath="$(dirname "$(readlink -f "$(which "${0}")")")"
+settingsFile="${toolPath}/../config/binSettings.sh"
+if [[ -f "${settingsFile}" ]]
+then
+  source ${settingsFile}
+
+  echo "# New Groups :"
+  ColumnHeaders="Projet,Attribution,PI,Projet (ID),Version state,Validation,Projet state,Category"
+  hpcManager list --no-header group --filter pf=NewMesoGroups | column -t -s ',' --table-columns "${ColumnHeaders}"
+  echo
+  echo "# New Users :"
+  ColumnHeaders="ID Gramc,Prenom,Nom,Projet,Email,Identifiant,PI,Login,Version state,Generated,Deleted (actif),Deleted (last),Category"
+  hpcManager list --no-header user --filter pf=NewMesoUsers | column -t -s ',' --table-columns "${ColumnHeaders}"
+  echo
+  echo "# New SSH Keys :"
+  ColumnHeaders="SSH public key,Home,Gramc ID,Identifiant,Projet,SSH key Name,Mail,Login,Deployed,Revoked,Generated,Deleted (actif),Deleted (last),Category"
+  hpcManager list --no-header user --filter pf=NewMesoSshKey | column -t -s ',' --table-columns "${ColumnHeaders}"
+  echo " * Commands :"
+  hpcManager list --no-header user --filter pf=NewMesoSshKey --attribute gramc_asshpublickey gramc_projet gramc_aloginname | \
+    awk -F ',' '{
+      print "     hpcSshManager user add sshpubkey --pubkey \""$1"\" --authid user --pgroup \""$2"\"  --login \""$3"\" --doit" ;
+      print "     hpcGramcManager user set sshpubkey --loginname \""$3"\" --projet \""$2"\" --doit"
+    }'
+  echo
+
+  echo "# New attributions :"
+  declare -a attributions=()
+  for project in $(hpcMesoManager list-pending-attributions --no-header)
+  do 
+    projectName="${project%%,*}"
+    projectExtension="${project##*,}"
+    projectConso="$(conso_manager list --type mesonet --quota --group ${projectName,,} 2>/dev/null )"
+    if [[ ${?} -eq 0 ]]
+    then
+      projectQuota="${projectConso##*:}"
+      attributions+=("$(hpcManager list --no-header group --filter 'gramc_projet=^'''${projectName,,}'''$' --attribut gramc_projet gramc_aattribution gramc_amail),${projectQuota},${projectExtension}")
+    fi
+  done
+  ColumnHeaders="Projet,Attribution,PI,Quota,Rallonge"
+  printf '%s\n' "${attributions[@]}" | column -t -s ',' --table-columns "${ColumnHeaders}"
+  echo
+
+  echo "# New networks : (MAJ : ${allowedIPFile} + internal doc)"
+  for ip in $(hpcMesoManager list-ips | grep -v 'Reseaux')
+  do 
+    IP="$(sudo grep -E "^\|\s*${ip}\s*\|" ${allowedIPFile})"
+    if [[ -z "${IP}" ]]
+    then 
+      echo "  ${ip}"
+    fi
+  done
+  echo
+
+  if [[ -f "${toolPath}/bin/customCommands" ]]
+  then
+    source customCommands.sh
+  fi
+fi

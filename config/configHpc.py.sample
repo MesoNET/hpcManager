@@ -1,0 +1,375 @@
+# -*- coding: utf-8 -*-
+""" Hpc object configuration file
+
+Configure all module to be used in meta manager and set ways to generate 
+missing attribute for user and group creation in each module.
+"""
+import hpc.generators
+import pathlib
+
+# Import global configuration
+import config.config as gconfig
+# Import some module configuration 
+import config.configLdapds as lconfig
+import config.configUnix as uconfig
+# Import all module to be used in meta manager in oder to be able to use them
+import hpc.unix
+import hpc.ldapds 
+import hpc.slurm
+import hpc.gramc 
+import hpc.history
+import hpc.ssh
+
+# Module declaration :
+# <type> [{
+#   "name": "<module>", 
+#   "type": <object>, 
+#   "help": "<help>", 
+#   "list": <object>",
+#   "keys": ["<key1>", "<key2>", ...]
+#   "generators": {
+#      "<attribute>": <function>
+#   }
+# },
+# ...
+# ]
+# 
+# Where :
+#   <type>       : The module type (group or user)
+#   <module>     : The name of the module (in "hpc" folder, and without .py) 
+#   <object>     : The object name as declared in the module file
+#   <help>       : Help to be displayed in managers
+#   <object>     : The object list name as declared in the module file
+#   <key1>       : Attribute name declared in the object that can identify an 
+#                  object in an unique way. Add more if you need more attribute
+#                  to guarantee uniqueness
+#   <attribute>  : Attribute name declared in the object to be generated if 
+#                  missing (--generate-missing option)
+#   <function>   : Lambda function used to generate attribute. The current 
+#                  HpcObject and the current list HpcObjects are the only
+#                  inputs for this function.
+
+config = {
+    # Global configuration
+    "global": gconfig.config,
+    "modules": {
+        "group": [{
+            "name": "gramc", 
+            "type": hpc.gramc.GramcProjet, 
+            "help": "Gramc project object", 
+            "list": hpc.gramc.GramcProjets,
+            "keys": ["projet"]
+        }, {
+            "name": "history", 
+            "type": hpc.history.HistoryGroup, 
+            "help": "History group object",
+            "list": hpc.history.HistoryGroups,
+            "keys": ["group"],
+            "generators": {
+                "history_group": 
+                    lambda objs, obj:
+                        obj.gramc.projet.lower()
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "history_generated": lambda objs, obj: True
+            }
+        }, {
+            "name": "ldapds", 
+            "type": hpc.ldapds.LdapGroup, 
+            "help": "Ldap group object",
+            "list": hpc.ldapds.LdapGroups,
+            "keys": ["cn"],
+            "generators": {
+                "ldapds_cn": 
+                    lambda objs, obj:
+                        obj.gramc.projet.lower()
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ldapds_gidnumber": 
+                    lambda objs, obj: 
+                        hpc.generators.numeric_id_generator(
+                            numeric_ids=[
+                                o.ldapds.gidnumber for o in objs if o.ldapds is not None
+                            ]
+                        ),        
+                "ldapds_generated": lambda objs, obj: True
+            }
+        }, {
+            "name": "unix", 
+            "type": hpc.unix.UnixGroup, 
+            "help": "Unix group object",
+            "list": hpc.unix.UnixGroups,
+            "keys": ["group"],
+            "generators": {
+                "unix_group": 
+                    lambda objs, obj:
+                        obj.gramc.projet.lower()
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "unix_gid": 
+                    lambda objs, obj: 
+                        obj.ldapds.gidnumber
+                        if obj.ldapds is not None
+                        else hpc.generators.numeric_id_generator(
+                            numeric_ids=[
+                                o.unix.gid for o in objs if o.unix is not None
+                            ]
+                        ),
+                "unix_password": lambda objs, obj: "x",        
+                "unix_generated": lambda objs, obj: True
+            }
+        }, {
+            "name": "slurm", 
+            "type": hpc.slurm.SlurmAccount, 
+            "help": "Slurm account object", 
+            "list": hpc.slurm.SlurmAccounts,
+            "keys": ["account"],
+            "generators": {
+                "slurm_account": 
+                    lambda objs, obj:
+                        obj.gramc.projet.lower()
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "slurm_generated": lambda objs, obj: True
+            }
+        }, {
+            "name": "ssh", 
+            "type": hpc.ssh.SshGroup, 
+            "help": "Ssh group object",
+            "list": hpc.ssh.SshGroups,
+            "keys": ["group"],
+            "generators": {
+                "ssh_group": 
+                    lambda objs, obj:
+                        obj.gramc.projet.lower()
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ssh_generated": lambda objs, obj: True
+            }
+        }
+        ],
+        "user": [{
+            "name": "gramc", 
+            "type": hpc.gramc.GramcUtilisateur, 
+            "help": "Gramc utilisateur object", 
+            "list": hpc.gramc.GramcUtilisateurs,
+            "keys": ["projet", "loginname"],
+        }, {
+            "name": "history", 
+            "type": hpc.history.HistoryUser, 
+            "help": "History user object", 
+            "list": hpc.history.HistoryUsers,
+            "keys": ["pgroup", "login"],
+            "generators": {
+                "history_pgroup": 
+                    lambda objs, obj: 
+                        obj.gramc.projet
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "history_login": 
+                    lambda objs, obj: 
+                        hpc.generators.anonymous_login_generator(
+                            projet=obj.gramc.projet,
+                            lastname=obj.gramc.nom,
+                            firstname=obj.gramc.prenom,
+                            idindividu=obj.gramc.idindividu,
+                            ulogins=[
+                                o.history.login 
+                                for o in objs if o.history is not None
+                            ],
+                            login=obj.gramc.loginname,
+                        )
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "history_generated": lambda objs, obj: True
+            }
+        }, {
+            "name": "ldapds", 
+            "type": hpc.ldapds.LdapUser, 
+            "help": "Ldap user object",
+            "list": hpc.ldapds.LdapUsers,
+            "keys": ["pgroup", "uid"],
+            "generators": {
+                "ldapds_uid":
+                    lambda objs, obj: 
+                        hpc.generators.anonymous_login_generator(
+                            projet=obj.gramc.projet,
+                            lastname=obj.gramc.nom,
+                            firstname=obj.gramc.prenom,
+                            idindividu=obj.gramc.idindividu,
+                            ulogins=[
+                                o.ldapds.uid 
+                                for o in objs if o.ldapds is not None
+                            ],
+                            login=obj.gramc.loginname,
+                        )
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ldapds_cn": lambda objs, obj: 
+                        f"{obj.gramc.prenom} {obj.gramc.nom}"
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ldapds_displayname": lambda objs, obj: obj.gramc.nom
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ldapds_uidnumber": 
+                    lambda objs, obj: 
+                        hpc.generators.numeric_id_generator(
+                            numeric_ids=[
+                                o.ldapds.uidnumber for o in objs if o.ldapds is not None
+                            ]
+                        ),
+                "ldapds_gidnumber": 
+                    lambda objs, obj: 
+                        hpc.utils.gidnumber_from_name(obj.gramc.projet, lconfig.config)
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        #    and hasattr(obj, 'ldapds') and obj.ldapds is not None
+                        else None,
+                "ldapds_homedirectory": lambda objs, obj: 
+                        hpc.generators.home_generator(
+                            hpc.generators.anonymous_login_generator(
+                                projet=obj.gramc.projet,
+                                lastname=obj.gramc.nom,
+                                firstname=obj.gramc.prenom,
+                                idindividu=obj.gramc.idindividu,
+                                ulogins=[
+                                    o.ldapds.uid 
+                                    for o in objs if o.ldapds is not None
+                                ],
+                                login=obj.gramc.loginname,
+                            ),
+                            obj.gramc.projet
+                        )
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ldapds_mail": lambda objs, obj: obj.gramc.utilisateur
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ldapds_loginshell": lambda objs, obj: 
+                        pathlib.Path(lconfig.config['user']['shell']),
+                "ldapds_gecos": lambda objs, obj:
+                        obj.gramc.idindividu
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ldapds_pgroup": 
+                    lambda objs, obj: 
+                        obj.gramc.projet
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "ldapds_generated": lambda objs, obj: True
+            }
+        }, {
+            "name": "unix", 
+            "type": hpc.unix.UnixUser, 
+            "help": "Unix user object",
+            "list": hpc.unix.UnixUsers,
+            "keys": ["pgroup", "login"],
+            "generators": {
+                "unix_login": 
+                    lambda objs, obj:
+                        hpc.generators.anonymous_login_generator(
+                            projet=obj.gramc.projet,
+                            lastname=obj.gramc.nom,
+                            firstname=obj.gramc.prenom,
+                            idindividu=obj.gramc.idindividu,
+                            ulogins=[
+                                o.unix.login 
+                                for o in objs if o.unix is not None
+                            ],
+                            login=obj.gramc.loginname,
+                        )
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "unix_password": lambda objs, obj: "x",
+                "unix_uid": 
+                    lambda objs, obj: 
+                        obj.ldapds.uidnumber
+                        if hasattr(obj, 'ldapds') and obj.ldapds is not None
+                        else hpc.generators.numeric_id_generator(
+                            numeric_ids=[
+                                o.unix.uid 
+                                for o in objs if o.unix is not None
+                            ]
+                        ),
+                "unix_gid": 
+                    lambda objs, obj: 
+                        obj.ldapds.gidnumber
+                        if hasattr(obj, 'ldapds') and obj.ldapds is not None
+                        else None,
+                "unix_pgroup": 
+                    lambda objs, obj: 
+                        obj.gramc.projet
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "unix_comment": 
+                    lambda objs, obj: 
+                        f"{obj.gramc.idindividu},{obj.gramc.nom},"
+                        f"{obj.gramc.prenom},{obj.gramc.utilisateur}"
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "unix_home": 
+                    lambda objs, obj: 
+                        hpc.generators.home_generator(
+                            hpc.generators.anonymous_login_generator(
+                                projet=obj.gramc.projet,
+                                lastname=obj.gramc.nom,
+                                firstname=obj.gramc.prenom,
+                                idindividu=obj.gramc.idindividu,
+                                ulogins=[
+                                    o.unix.login 
+                                    for o in objs if o.unix is not None
+                                ],
+                                login=obj.gramc.loginname,
+                            ), 
+                            obj.gramc.projet
+                        )
+                        if hasattr(obj, 'gramc') and obj.gramc is not None
+                        else None,
+                "unix_shell": lambda objs, obj: pathlib.Path(uconfig.config['user']['shell']),
+                "unix_clearpassword": 
+                    lambda objs, obj: 
+                        hpc.generators.password_generator(uconfig.config['user']['password_length']),
+                "unix_generated": lambda objs, obj: True
+            }
+        }, {
+            "name": "slurm",
+            "type": hpc.slurm.SlurmUser, 
+            "help": "Slurm user object", 
+            "list": hpc.slurm.SlurmUsers,
+            "keys": ["account", "user"],
+            "generators": {
+                "slurm_user": 
+                    lambda objs, obj: 
+                        obj.ldapds.uid
+                        if hasattr(obj, 'ldapds') and obj.ldapds is not None
+                        else None,
+                "slurm_account":
+                    lambda objs, obj: 
+                        obj.ldapds.pgroup
+                        if hasattr(obj, 'ldapds') and obj.ldapds is not None
+                        else None,
+                "slurm_generated": lambda objs, obj: True
+            }
+        }, {
+            "name": "ssh", 
+            "type": hpc.ssh.SshUser, 
+            "help": "Ssh user object", 
+            "list": hpc.ssh.SshUsers,
+            "keys": ["pgroup", "login"],
+            "generators": {
+                "ssh_pgroup": 
+                    lambda objs, obj: 
+                        obj.ldapds.pgroup
+                        if hasattr(obj, 'ldapds') and obj.ldapds is not None
+                        else None,
+                "ssh_login": 
+                    lambda objs, obj: 
+                        obj.ldapds.uid
+                        if hasattr(obj, 'ldapds') and obj.ldapds is not None
+                        else None,
+                "ssh_generated": lambda objs, obj: True
+            }
+        }
+        ]
+    },
+}

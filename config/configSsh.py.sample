@@ -1,0 +1,52 @@
+# -*- coding: utf-8 -*-
+""" Ssh object configuration file
+"""
+# Import global configuration
+import config.config as gconfig
+
+config = {
+    # Global configuration
+    "global": gconfig.config,
+    # Binary location
+    "binary": {
+        ## Note :
+        ## Add "echo #disabled#" before a binary if you want it to be disabled
+        "ssh-keygen": "/usr/bin/ssh-keygen"
+    },
+    # Ssh groups and users root path 
+    # (designed to be "/meso/users/<group>/<user>/<ssh-folder>")
+    "sshRootPath": "/meso/users",
+    # Ssh user folder name 
+    "sshFolder": ".ssh_meso",
+    # Ssh default folder rights
+    "sshFolderRights": "u=rx,g=,o=",
+    # List of authorized_keys files for users. Need to be configured 
+    # accordingly in sshd_config. An example can be found in sample folder.
+    # At least "user" authorized_keys files must be set in order to be
+    # able to deploy key from GRAMC-meso
+    "sshAuthorizedKeysFiles": {
+        "admin": "authorized_keys.admin",
+        "internal": "authorized_keys.internal",
+        "pi": "authorized_keys.pi",
+        "user": "authorized_keys.user",
+    },
+    # Ssh default ssh authorized_keys rights for user
+    "sshAuthorizedKeysFileRights": "u=r,g=,o=",
+    # Ssh default internal private and public keys names for user
+    "sshInternalKeyFiles": {
+        "priv": "identity.internal",
+        "pub": "identity.internal.pub"
+    },
+    # Ssh default ssh private and public internal keys rights for user
+    "sshInternalKeyFileRights": "u=r,g=,o=",
+    # Allowed ssh algorithm for user ssh key to be deployed    
+    "sshAllowedAlgorithm": {
+        "RSA": { "min-size": "2048"},
+        "ED25519": { "min-size": "256"}
+    },
+    # Default ssh option for internal ssh key creation
+    "default-ssh-keygen-create-options": "-t ed25519 -N ''",
+    # Default ssh option for ssh public key checks when added to 
+    # authorized_keys file
+    "default-ssh-keygen-check-options": "-l",
+}

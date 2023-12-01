@@ -1,0 +1,33 @@
+# -*- coding: utf-8 -*-
+"""
+    Predefined filters
+
+    A predefined filter is a list of filter that are usable in command line as 
+    --filter "predefined=MyFilter"
+"""
+predefined = {
+    "group": {
+        # Ssh module filters
+        "SshGroups": {
+            "help": "List all ssh groups (filters nothing, only set default attributes)",
+            "attributes": [
+                'group', 'category', 'musers'
+            ],
+            "filters":  [
+            ],
+            "module": "ssh"
+        },
+    },
+    "user": {
+        # Ssh module filters
+        "SshUsers": {
+            "help": "List all ssh users (filters nothing, only set default attributes)",
+            "attributes": [
+                'login', 'folder', 'category', 'pgroup', 'authpubkeysuser'
+            ],
+            "filters":  [
+            ],
+            "module": "ssh"
+        },
+    }
+}

@@ -1,0 +1,62 @@
+# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+""" Global configuration
+"""
+config = {
+    # Manager root path
+    "rootPath": "/opt/meso/python-hpcManager-beta",
+    # Manager root data path
+    "dataPath": "data",
+    # Category declaration group matching defined regex fall into the category
+    "category": {
+        "mesonet": {"regex": "m[0-9]{2,}"},
+        "entreprise": {"regex": "e[0-9]{2,}"},
+        "test": {"regex": "t[0-9]{2,}"},
+        "unknown": {"regex": "ghost_"},
+        "socle": {
+            "regex": "invite|prestataire|mesoadmin|formation|wcal"
+        },
+        "admins": {
+            "regex": "mesoadmin|wcal"
+        },
+        "interne": {
+            "regex": "slurmadministrator"
+        },
+        "logiciel": {
+            "regex": "licences"
+        },
+        "system": {"regex": None} 
+    },
+    "binary": {
+        ## Note :
+        ## Add "echo #disabled#" before a binary if you want it to be disabled
+        "mkdir": "/usr/bin/mkdir",
+        "chown": "/usr/bin/chown",
+        "chmod": "/usr/bin/chmod",
+        "rmdir": "/usr/bin/rmdir",
+        "touch": "/usr/bin/touch",
+        "mv": "/usr/bin/mv",
+        "rm": "/usr/bin/rm",
+        "ln": "/usr/bin/ln",
+        "conso_manager": "conso_manager",
+        "hpcGramcUpdate": "hpcGramcUpdateBeta",
+        "curl": "/usr/bin/curl",
+        "ldapsearch": "/usr/bin/ldapsearch",
+        "clush": "/usr/bin/clush",
+        "update-cache": "sssctl cache-upgrade;sssctl cache-expire --everything"
+    },
+    # Default curl options to generate curl command line API requests
+    "default-curl-options": "-s --netrc-file /opt/meso/.netrc",
+    # Default ldapsearch options to generate ldapsearch command line requests
+    "default-ldapsearch-options": "-x -LLL",
+    # Cluster logins nodes for updating cache and search for user shell activity
+    "loginNodes": ["mesologin1", "mesologin2"],
+    # Users real home paths
+    "homeRootRealPaths": ["/meso/users"],
+    # Users unique home path
+    "homeRootPath": "/meso/users",
+    # Develop mode : on or off (enable user and group creation and deletion)
+    "develop": "Off",
+    # Message to display when project has no user (GRAMC only)
+    "createNoUserMsg": "My message"
+}

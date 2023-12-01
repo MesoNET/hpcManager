@@ -1,0 +1,110 @@
+# -*- coding: utf-8 -*-
+""" Slurm object configuration file
+"""
+# Import global configuration
+import config.config as gconfig
+
+config = {
+    # Global configuration
+    "global": gconfig.config,
+    # Binary location
+    "binary": {
+        ## Note :
+        ## Add "echo #disabled#" before a binary if you want it to be disabled
+        "sacctmgr": "/usr/bin/sacctmgr",
+        "squeue": "/usr/bin/squeue",
+        "scancel": "/usr/bin/scancel"
+    },
+    # Describe your slurm partitions association. Not all slurm combination 
+    # are taken into account. So, be careful !
+    #
+    # Example : sacctmgr show assoc where user=test
+    #
+    #   Cluster  Account  User        Partition  GrpJobs  GrpTRES           MaxTRESPerNode                    MaxWall   QOS                   
+    #   meso     mtest    test        small      2                          node=6                            04:00:00  normal                                         
+    #   meso     mtest    test        big        1                          node=13                           02:00:00  normal                                         
+    #   meso     mtest    test        full       1                                                            20:00:00  normal                                         
+    #   meso     mtest    test        shared     2                          cpu=40,gres/gpu=1,mem=256G,node=1 04:00:00  normal                                         
+    #   meso     mtest    test        visu       1        cpu=8,mem=50000M                                    04:00:00  normal
+    "partitions": {
+        "small": {
+            "association": {
+                "default": {
+                    "GrpJobs": 2, 
+                    "MaxTRESPerJob": {
+                        "node": 6
+                    }, 
+                    "MaxWallDurationPerJob": "04:00:00"
+                }
+            }
+        },
+        "big": {
+            "association": {
+                "default": {
+                    "GrpJobs": 1, 
+                    "MaxTRESPerJob": {
+                        "node": 13
+                    }, 
+                    "MaxWallDurationPerJob": "02:00:00"
+                }
+            }
+        },
+        "full": {
+            "association": {
+                "default": {
+                    "GrpJobs": 1, 
+                    "MaxWallDurationPerJob": "20:00:00"
+                }
+            }
+        },
+        "shared": {
+            "association": {
+                "default": {
+                    "GrpJobs": 2, 
+                    "MaxTRESPerJob": {
+                        "node": 1,
+                        "gres/gpu": 1,
+                        "cpu": 40,
+                        "mem": "256G"
+                    }, 
+                    "MaxWallDurationPerJob": "04:00:00"
+                }
+            }
+        },
+        "visu": {
+            "association": {
+                "default": {
+                    "GrpJobs": 1, 
+                    "MaxTRESPerJob": {
+                        "cpu": 8,
+                        "mem": "50G"
+                    },
+                    "MaxWallDurationPerJob": "04:00:00"
+                }
+            }
+        }
+    },
+    # List of QOS.
+    # QOS must be defined on all partition. Can be empty if defined by 
+    # partition as association attribute (should work not tested)
+    "qos": [ 
+        "normal" 
+    ],
+    "activity": {
+        # squeue attributes needed to display user job activity on cluster
+        # "<name>" {"abrv": '<abrv>', "justify": '<justify>', "size": <size>}
+        # Where : 
+        #   * <name>    : Activity attribute name that will be displayed
+        #   * <abrv>    : squeue real attribute name
+        #   * <justify> : Alignement as describe here : https://docs.python.org/3/library/string.html#formatstrings 
+        #   * <size>    : Displayed column size for this attribute
+        "JOBID": {"abrv": '%A', "justify": '>', "size": 8}, 
+        "ACCOUNT": {"abrv": '%a', "justify": '>', "size": 10},
+        "USER":  {"abrv": '%u', "justify": '>', "size": 10},
+        "PARTITION":  {"abrv": '%P', "justify": '>', "size": 10},
+        "QOS":  {"abrv": '%q', "justify": '>', "size": 7},
+        "START_TIME":  {"abrv": '%S', "justify": '>', "size": 19},
+        "END_TIME":  {"abrv": '%e', "justify": '>', "size": 19},
+        "STATE":  {"abrv": '%T', "justify": '>', "size": 7}
+    }
+}

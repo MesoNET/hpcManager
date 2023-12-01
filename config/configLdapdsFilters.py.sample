@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+
+"""
+    Predefined filters
+
+    A predefined filter is a list of filter that are usable in command line as 
+    --filter "predefined=MyFilter"
+"""
+predefined = {
+    "group": {
+        # Ldapds module filters
+        "LdapdsGroups": {
+            "help": "List all Ldap groups (filters nothing, only set default attributes)",
+            "attributes": [
+                'cn', 'gidnumber', 'musers'
+            ],
+            "filters":  [
+            ],
+            "module": "ldapds"
+        },
+    },
+    "user": {
+        # Ldapds module filters
+        "LdapdsUsers": {
+            "help": "List all ldap users (filters nothing, only set default attributes)",
+            "attributes": [
+                'uid', 'mail', 'uidnumber', 'gidnumber', 'pgroup', 
+                'gecos', 'homedirectory', 'loginshell', 'locked'
+            ],
+            "filters":  [
+            ],
+            "module": "ldapds"
+        },
+    }
+}

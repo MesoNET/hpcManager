@@ -1,0 +1,89 @@
+# -*- coding: utf-8 -*-
+""" Ldapds object configuration file
+For more information on Red Hat Directory Server : 
+https://access.redhat.com/documentation/en-us/red_hat_directory_server/
+"""
+# Import global configuration
+import config.config as gconfig
+
+config = {
+    # Global configuration
+    "global": gconfig.config,
+    # Binary location
+    "binary": {
+        ## Note :
+        ## Add "echo #disabled#" before a binary if you want it to be disabled
+        "dsidm": "/usr/sbin/dsidm",
+        "ldapsearch": "/usr/bin/ldapsearch",
+    },
+    # Default ldapsearch options
+    "default-ldapsearch-options": "-x -LLL",
+    # LDAP URI as in python ldap module : https://www.python-ldap.org/en/latest
+    "uri": "ldaps://localhost",
+    # Red Hat Directory Server (dsidm) instance
+    "instance": "meso",
+    # Red Hat Directory Server (dsidm) confirmation string for deletion
+    "confirmation": "Yes I am sure",
+    "user": {
+        # LDAP user organisation unit (ou)
+        "ou": "ou=people,dc=meso,dc=local",
+        # User minimum uid number on system (should be 0)
+        "uid_min": 0,
+        # User uid number start number for creating new users 
+        "uid_usable": 20000,
+        # User maximum uid number for creating new users
+        "uid_max": 30000,
+         # Default shell for users
+        "shell": "/bin/bash",
+        # Default shell for disabled users (Used to check locked user). An 
+        # sample can be doc/sample folder
+        "disabled": "/sbin/disabled",
+        # Password length to generate random password
+        "password_length": 128,
+    },
+    "group": {
+        # LDAP group organisation unit (ou)
+        "ou": "ou=groups,dc=meso,dc=local",
+        # Group category
+        # "<category>" {
+        #   "gid_min": <min>,
+        #   "gid_usable": <usable>,
+        #   "gid_max": <max>,
+        #   "groups": ["<groupe1>","<groupe2>",...]
+        # }
+        # Where :
+        #   * <category> : Category name
+        #   * <min>      : Group minimum gid number on system for this category
+        #   * <usable>   : Group gid start number on system for creating new 
+        #                  groups in this category
+        #   * <max>      : Group gid maximum number on system for creating new
+        #                  groups in this category
+        #   * <groups>   : Groups to add as member when creating a user in 
+        #                  this category
+        "interne": { 
+            "gid_min": 5000,
+            "gid_usable": 5000,
+            "gid_max": 5999
+        },
+        "socle": { 
+            "gid_min": 10000,
+            "gid_usable": 10000,
+            "gid_max": 19999,
+            "groups": ["mesousers"]
+        },
+        "admins": { 
+            "groups": ["mesousers", "slurmadministrator"]
+        },
+        "logiciel": { 
+            "gid_min": 15000,
+            "gid_usable": 15000,
+            "gid_max": 15999,
+        },
+        "mesonet": { 
+            "gid_min": 20000,
+            "gid_usable": 20000,
+            "gid_max": 29999,
+            "groups": ["mesousers"]
+        },
+    },
+}

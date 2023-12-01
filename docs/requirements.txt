@@ -1,2 +1,3 @@
 python-ldap
 git+https://github.com/christophe-marteau/python-cilogger#egg=cilogger
+sphinx-argparse
